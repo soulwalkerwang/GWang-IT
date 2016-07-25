@@ -2,12 +2,12 @@
  * Created by gwang on 6/16/2016.
  */
 var mysql = require('mysql');
-
+var dataconfig = require('../dataconn.json');
 var db = mysql.createConnection({
-    host:     'ec2-50-112-215-58.us-west-2.compute.amazonaws.com',
-    user:     'gwangit',
-    password: 'Ab123123123123$',
-    database: 'gwangit'
+    host:     dataconfig.host,
+    user:     dataconfig.user,
+    password: dataconfig.password,
+    database: dataconfig.database
 });
 
 function Post(row) {
