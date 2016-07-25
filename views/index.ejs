@@ -16,16 +16,17 @@
                 Recent Posts
             </h1>
 
-            <!-- First Blog Post -->
+            <% console.log(allPosts) %>
+            <% allPosts.forEach(function(post){ %>
             <div class="row">
                 <div class="col-md-8">
                 <h2>
-                    <a href="#">5 ways to create instance in Java</a>
+                    <a href="posts/<%= post.postId %>"><%= post.title%></a>
 
                 </h2>
                 <p class="lead">
-                    by <a href="index.php">GWang</a></span> |
-                    <time datetime="2016-05-31T13:55:18+00:00">May 31, 2016</time>
+                    by <%= post.author %> |
+                    <time datetime="2016-05-31T13:55:18+00:00"><%= post.publish_date %></time>
                 </p>
                 </div>
                 <div class="col-md-4">
@@ -34,7 +35,7 @@
 
             </div>
             <hr>
-
+            <% }) %>
 
 
 
