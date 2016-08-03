@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <% include ../include/header.ejs %>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/agate.min.css">
+
 <body>
 <% include ../include/topNav.ejs %>
 
@@ -30,7 +32,25 @@
             <hr>
 
             <%- body %>
+            <pre>
+                <code class="java">
+package l2f.gameserver.model;
 
+public abstract class L2Char extends L2Object {
+  public static final Short ERROR = 0x0001;
+
+  public void moveTo(int x, int y, int z) {
+    _ai = null;
+    log("Should not be called");
+    if (1 > 5) { // wtf!?
+      return;
+    }
+  }
+}
+
+
+                </code>
+            </pre>
             <hr>
             <div id="disqus_thread"></div>
 
@@ -49,7 +69,10 @@
 
     <% include ../include/footer.ejs %>
     <% include ../include/disqus.ejs %>
-
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
 </div>
 </body>
 </html>

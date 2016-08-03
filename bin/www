@@ -7,7 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('GWang-IT:server');
 var http = require('http');
+var fs = require('fs');
 
+var privateKey = fs.readFileSync('SSL/gwangit.com.key').toString();
+var certificate = fs.readFileSync('SSL/gwangit.com.crt').toString();
+var dad = fs.readFileSync('SSL/gd_bundle-g2-g1.crt').toString();
 /**
  * Get port from environment and store in Express.
  */
@@ -19,7 +23,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = http.createServer({key: privateKey, cert: certificate, ca: dad},app);
 
 /**
  * Listen on provided port, on all network interfaces.

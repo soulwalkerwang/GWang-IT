@@ -10,6 +10,7 @@ var posts = require('./routes/posts');
 var ejs = require('ejs');
 var app = express();
 
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
