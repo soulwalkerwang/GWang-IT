@@ -2,7 +2,9 @@
  * Created by gwang on 6/16/2016.
  */
 var mysql = require('mysql');
+var moment = require('moment-timezone');
 var dataconfig = require('../dataconn.json');
+var dateFormat = require('dateformat');
 var db_config ={
     host:     dataconfig.host,
     user:     dataconfig.user,
@@ -34,11 +36,12 @@ handleDisconnect();
 
 function Post(row) {
     this.postId =  row.id;
-    this.publish_date = row.publish_date;
+    this.publish_date = moment.tz(row.publish_date, "America/Sitka").format("YYYY-MM-DD HH:mm:ss");
     this.title = row.title;
     this.author = row.author;
+    this.meta_desc = row.meta_desc;
     this.body = row.body;
-    
+    this.icon = row.icon;
 }
 
 

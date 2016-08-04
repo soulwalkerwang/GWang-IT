@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
+<head>
 <% include ../include/header.ejs %>
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/agate.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/agate.min.css">
+    <meta name="keywords" content="<%= meta_desc %>">
+    <title>GWang-IT.com | <%= title %></title>
 
+</head>
 <body>
 <% include ../include/topNav.ejs %>
 
@@ -17,11 +21,11 @@
             <!-- Blog Post -->
 
             <!-- Title -->
-            <h1><%=title%></h1>
+            <h1><%= title %></h1>
 
             <!-- Author -->
             <p class="lead">
-                by <%=author%>
+                by <%= author %>
             </p>
 
             <hr>
@@ -30,27 +34,7 @@
             <p><span class="glyphicon glyphicon-time"></span> Posted on <%= publish_date %></p>
 
             <hr>
-
-            <%- body %>
-            <pre>
-                <code class="java">
-package l2f.gameserver.model;
-
-public abstract class L2Char extends L2Object {
-  public static final Short ERROR = 0x0001;
-
-  public void moveTo(int x, int y, int z) {
-    _ai = null;
-    log("Should not be called");
-    if (1 > 5) { // wtf!?
-      return;
-    }
-  }
-}
-
-
-                </code>
-            </pre>
+            <%- body%>
             <hr>
             <div id="disqus_thread"></div>
 
@@ -65,7 +49,6 @@ public abstract class L2Char extends L2Object {
     <!-- /.row -->
 
     <hr>
-
 
     <% include ../include/footer.ejs %>
     <% include ../include/disqus.ejs %>

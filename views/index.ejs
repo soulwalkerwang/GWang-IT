@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
+<head>
 <% include include/header.ejs %>
+<title>Learn IT knowledge | GWang-IT.com </title>
+</head>
 <body>
 <% include include/topNav.ejs %>
 
@@ -19,7 +22,7 @@
 
             <% allPosts.forEach(function(post){ %>
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-9">
                 <h2>
                     <a href="posts/<%= post.postId %>"><%= post.title%></a>
 
@@ -29,8 +32,8 @@
                     <time datetime="2016-05-31T13:55:18+00:00"><%= post.publish_date %></time>
                 </p>
                 </div>
-                <div class="col-md-4">
-                    <img class="pull-right" src="/images/JAVA-ICON.png" width="100">
+                <div class="col-md-3">
+                    <img class="pull-right" src="/images/<%= post.icon %>" width="100">
                 </div>
 
             </div>
@@ -39,7 +42,7 @@
 
 
 
-            <!-- Pager -->
+            <!--
             <ul class="pager">
                 <li class="previous">
                     <a href="#">&larr; Older</a>
@@ -48,7 +51,7 @@
                     <a href="#">Newer &rarr;</a>
                 </li>
             </ul>
-
+-->
         </div>
 
         <!-- Blog Sidebar Widgets Column -->

@@ -30,14 +30,6 @@ app.use(require('node-sass-middleware')({
   indentedSyntax: true,
   sourceMap: true
 }));
-app.use(function requireHTTPS(req, res, next) {
-    if (!req.secure) {
-        return res.redirect('https://' + req.get('host') + req.url);
-    }
-    next();
-});
-
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);

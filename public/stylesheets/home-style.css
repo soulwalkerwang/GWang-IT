@@ -1,6 +1,7 @@
 body {
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+  font: 16px "Helvetica Neue",Helvetica,Arial,sans-serif;
+  line-height: 1.42; }
 
 a {
   color: #00B7FF; }

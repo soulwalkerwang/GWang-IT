@@ -8,7 +8,7 @@ var app = require('../app');
 var debug = require('debug')('GWang-IT:server');
 var https = require('https');
 var fs = require('fs');
-
+var http = require('http');
 
 var privateKey = fs.readFileSync(__dirname + '/../SSL/gwangit.com.key').toString();
 var certificate = fs.readFileSync(__dirname + '/../SSL/gwangit.com.crt').toString();
@@ -33,7 +33,10 @@ var server = https.createServer({key:privateKey, cert:certificate, ca:dad},app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
+http.createServer(function (req, res) {
+  res.writeHead(301, { "Location": "https://" + req.headers['host']  + req.url });
+  res.end();
+}).listen(8080);
 
 /**
  * Normalize a port into a number, string, or false.
