@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../include/header.ejs %>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/agate.min.css">
+</head>
+<body>
+<% include ../include/topNav.ejs %>
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+
+            <!-- Blog Post -->
+
+            <!-- Title -->
+            <h1><%= title %></h1>
+
+            <!-- Author -->
+            <p class="lead">
+                by <%= author %>
+            </p>
+
+            <hr>
+
+            <!-- Date/Time -->
+            <p><span class="glyphicon glyphicon-time"></span> Posted on <%= publish_date %></p>
+
+            <hr>
+            <h3>1.Application Scenarios</h3>
+            <p>When a object status changed, how to send notification to relative object and do something.</p>
+            <h3>2.Class structure</h3>
+            <img src="/images/3-img1.PNG">
+            <br>
+            <br>
+            <p>Subject: target object, generally has following features.</p>
+            <ul>
+                <li>One target object can be observed by several observer.</li>
+                <li>Provide subscription and un-subscription function to observer.</li>
+                <li>When target object status changed, notify all registered observer.</li>
+            </ul>
+            <p>Observer: observer interface, provide update method that will do relative business logic,
+                also can callback to target object in order to get target object data.</p>
+            <p>Newspaper: concrete subject.</p>
+            <p>Reader: concrete reader.</p>
+            <h3>3.Code - <i>jdk version: 1.8</i></h3>
+            <p>Subject.java</p>
+            <pre>
+                <code class="java">
+public class Subject {
+
+    private List<Observer> readers = new ArrayList<>();
+
+    public void attach(Observer reader){
+        if(reader != null){
+            readers.add(reader);
+        }
+    }
+
+    public void detach(Observer reader){
+        if(reader != null){
+            readers.remove(reader);
+        }
+    }
+
+    public void notifyAllReaders(){
+        if(readers.size() != 0){
+            //"this" point to newspaper instance because update function invoked by newspaper
+            readers.forEach(reader -> reader.update(this));
+        }
+
+    }
+}
+
+                </code>
+            </pre>
+            <p>Newspaper.java</p>
+            <pre>
+                <code class="java">
+public class Newspaper extends Subject {
+    private String content;
+    public String getContent(){
+        return content;
+    }
+
+    public void setContent(String content){
+        this.content = content;
+        notifyAllReaders();
+    }
+}
+                </code>
+            </pre>
+            <p>Observer.java</p>
+            <pre>
+                <code class="java">
+public interface Observer {
+    public void update(Subject subject);
+}
+                </code>
+            </pre>
+            <p>Reader.java</p>
+            <pre>
+                <code class="java">
+public class Reader implements Observer {
+    private String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void update(Subject subject) {
+        System.out.println(name + "Received newspaper\n The content is: "
+                + ((Newspaper)subject).getContent() );
+    }
+}
+                </code>
+            </pre>
+            <p>Client.java</p>
+            <pre>
+                <code class="java">
+public class Client {
+
+    public static void main(String[] args) {
+        //Create a newspaper as observed
+        Newspaper subject = new Newspaper();
+        //Create a reader as observer
+        Reader reader1 = new Reader();
+        reader1.setName("Tom");
+
+        Reader reader2 = new Reader();
+        reader2.setName("John");
+
+        Reader reader3 = new Reader();
+        reader3.setName("Peter");
+
+        //Register reader
+        subject.attach(reader1);
+        subject.attach(reader2);
+        subject.attach(reader3);
+
+        //First article publish
+        subject.setContent("Observer Design Pattern");
+    }
+}
+                </code>
+            </pre>
+            <hr>
+            <div id="disqus_thread"></div>
+
+        </div>
+        <!-- Blog Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+
+        </div>
+
+    </div>
+    <!-- /.row -->
+
+    <hr>
+
+    <% include ../include/footer.ejs %>
+    <% include ../include/disqus.ejs %>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>
+</div>
+</body>
+</html>
