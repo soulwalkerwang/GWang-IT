@@ -40,6 +40,7 @@ function Post(row) {
     this.title = row.title;
     this.author = row.author;
     this.meta_desc = row.meta_desc;
+    this.meta_keywords = row.meta_keywords;
     this.body = row.body;
     this.icon = row.icon;
 }

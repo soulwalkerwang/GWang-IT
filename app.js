@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var posts = require('./routes/posts');
+var test = require('./routes/test');
 var ejs = require('ejs');
 var app = express();
 
@@ -17,6 +18,7 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 if(app.get('env') === 'development'){
   app.use(logger('dev'));
 }
@@ -34,10 +36,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/posts', posts);
+app.use('/test', test);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  console.log(app.get('env'));
+  var err = new Error('Page Not Found');
   err.status = 404;
   next(err);
 });

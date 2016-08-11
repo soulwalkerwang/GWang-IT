@@ -18,142 +18,54 @@
             <!-- Blog Post -->
 
             <!-- Title -->
-            <h1><%= title %></h1>
+            <h1>JVM Architecture 01 - Java Memory Model</h1>
 
             <!-- Author -->
             <p class="lead">
-                by <%= author %>
+                by GWang
             </p>
 
             <hr>
 
             <!-- Date/Time -->
-            <p><span class="glyphicon glyphicon-time"></span> Posted on <%= publish_date %></p>
+            <p><span class="glyphicon glyphicon-time"></span> Posted on 08/11/2016</p>
 
             <hr>
-            <h3>1.Application Scenarios</h3>
-            <p>When a object status changed, how to send notification to relative object and do something.</p>
-            <h3>2.Class structure</h3>
-            <img src="/images/3-img1.PNG">
+            <p>Sometimes, when we develop program that needs high demand of thread
+                synchronization and thread security, we usually neglect one thing - Java Memory Model.</p>
+            <h3>Principle of memory model</h3>
+            <ol>
+                <li>Atomicity</li>
+                <li>Visibility</li>
+                <li>Ordering</li>
+            </ol>
+            <p>These three principle is very important if you want to go deeply in java concurrency, but here
+                we mainly talk about java memory model, so I'm not going to write the details and concept of
+                them. If you are interested, It's very easily to find in google. </p>
             <br>
-            <br>
-            <p>Subject: target object, generally has following features.</p>
-            <ul>
-                <li>One target object can be observed by several observer.</li>
-                <li>Provide subscription and un-subscription function to observer.</li>
-                <li>When target object status changed, notify all registered observer.</li>
-            </ul>
-            <p>Observer: observer interface, provide update method that will do relative business logic,
-                also can callback to target object in order to get target object data.</p>
-            <p>Newspaper: concrete subject.</p>
-            <p>Reader: concrete reader.</p>
-            <h3>3.Code - <i>jdk version: 1.8</i></h3>
-            <p>Subject.java</p>
-            <pre>
-                <code class="java">
-public class Subject {
+            <h3>What does JMM (Java Memory Model) looks like</h3>
+            <p>Java Memory model describes relationship of each variable in our program, as well as the
+                details of store variable into memory or take out variable from memory. The variable mentioned
+                here is different from the variable we used in JAVA programming, it includes instance fields,
+                static fields and arrays, exclusive of local variable and method arguments, cause local
+                variable and method arguments are private in each thread, will not be shared.</p>
 
-    private List<Observer> readers = new ArrayList<>();
 
-    public void attach(Observer reader){
-        if(reader != null){
-            readers.add(reader);
-        }
-    }
+            <p>All thread shared variable will stored in main memory. Each thread has a private local/working
+                memory that mainly used to save the copy of variable stored in main memory. All operation act
+                on variable (read and write) must processes in local/working memory, it is not allowed to
+                directly operate variable in main memory. Each thread not able to access other thread
+                local/working memory, all variable transmission operation must be handled in main memory.</p>
 
-    public void detach(Observer reader){
-        if(reader != null){
-            readers.remove(reader);
-        }
-    }
+            <img class="postimg" src="/images/JVM Architecture 01.png">
 
-    public void notifyAllReaders(){
-        if(readers.size() != 0){
-            //"this" point to newspaper instance because update function invoked by newspaper
-            readers.forEach(reader -> reader.update(this));
-        }
+            <p>The main memory and working memory written here is different form java heap, stack and method
+                area we used in Java memory region. They are stand in different classified memory level. I'll
+                explain that in later post.</p>
 
-    }
-}
 
-                </code>
-            </pre>
-            <p>Newspaper.java</p>
-            <pre>
-                <code class="java">
-public class Newspaper extends Subject {
-    private String content;
-    public String getContent(){
-        return content;
-    }
-
-    public void setContent(String content){
-        this.content = content;
-        notifyAllReaders();
-    }
-}
-                </code>
-            </pre>
-            <p>Observer.java</p>
-            <pre>
-                <code class="java">
-public interface Observer {
-    public void update(Subject subject);
-}
-                </code>
-            </pre>
-            <p>Reader.java</p>
-            <pre>
-                <code class="java">
-public class Reader implements Observer {
-    private String name;
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void update(Subject subject) {
-        System.out.println(name + "Received newspaper\n The content is: "
-                + ((Newspaper)subject).getContent() );
-    }
-}
-                </code>
-            </pre>
-            <p>Client.java</p>
-            <pre>
-                <code class="java">
-public class Client {
-
-    public static void main(String[] args) {
-        //Create a newspaper as observed
-        Newspaper subject = new Newspaper();
-        //Create a reader as observer
-        Reader reader1 = new Reader();
-        reader1.setName("Tom");
-
-        Reader reader2 = new Reader();
-        reader2.setName("John");
-
-        Reader reader3 = new Reader();
-        reader3.setName("Peter");
-
-        //Register reader
-        subject.attach(reader1);
-        subject.attach(reader2);
-        subject.attach(reader3);
-
-        //First article publish
-        subject.setContent("Observer Design Pattern");
-    }
-}
-                </code>
-            </pre>
             <hr>
-            <div id="disqus_thread"></div>
+
 
         </div>
         <!-- Blog Sidebar Widgets Column -->
@@ -168,7 +80,7 @@ public class Client {
     <hr>
 
     <% include ../include/footer.ejs %>
-    <% include ../include/disqus.ejs %>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
     <script>
         hljs.initHighlightingOnLoad();
