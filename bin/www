@@ -16,8 +16,16 @@ var dad = fs.readFileSync(__dirname + '/../SSL/gd_bundle-g2-g1.crt').toString();
 /**
  * Get port from environment and store in Express.
  */
+var port;
+var port_http;
+if (app.get('env') === 'development'){
+  port = normalizePort(process.env.PORT || '3000');
+  port_http = normalizePort('8888');
+}else {
+  port = normalizePort('443');
+  port_http = port_http = normalizePort('80');
+}
 
-var port = normalizePort(process.env.PORT || '443');
 app.set('port', port);
 
 /**
@@ -36,7 +44,7 @@ server.on('listening', onListening);
 http.createServer(function (req, res) {
   res.writeHead(301, { "Location": "https://" + req.headers['host']  + req.url });
   res.end();
-}).listen(80);
+}).listen(port_http);
 
 /**
  * Normalize a port into a number, string, or false.
