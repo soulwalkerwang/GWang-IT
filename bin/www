@@ -17,7 +17,7 @@ var dad = fs.readFileSync(__dirname + '/../SSL/gd_bundle-g2-g1.crt').toString();
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '443');
 app.set('port', port);
 
 /**
@@ -36,7 +36,7 @@ server.on('listening', onListening);
 http.createServer(function (req, res) {
   res.writeHead(301, { "Location": "https://" + req.headers['host']  + req.url });
   res.end();
-}).listen(8080);
+}).listen(80);
 
 /**
  * Normalize a port into a number, string, or false.
