@@ -36,7 +36,7 @@ handleDisconnect();
 
 function Post(row) {
     this.postId =  row.id;
-    this.publish_date = moment.tz(row.publish_date, "America/New York").format("YYYY-MM-DD HH:mm:ss");
+    this.publish_date = moment.tz(row.publish_date, "America/New_York").format("YYYY-MM-DD HH:mm:ss");
     this.title = row.title;
     this.author = row.author;
     this.meta_desc = row.meta_desc;
