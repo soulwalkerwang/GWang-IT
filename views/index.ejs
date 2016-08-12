@@ -15,19 +15,19 @@
         <!-- Blog Entries Column -->
         <div class="col-md-8">
 
-            <h1 class="page-header">
+            <h2 class="page-header">
                 Recent Posts
-            </h1>
+            </h2>
 
 
             <% allPosts.forEach(function(post){ %>
             <div class="row">
                 <div class="col-md-10">
-                <h2>
+                <h3>
                     <a href="posts/<%= post.postId %>"><%= post.title%></a>
 
-                </h2>
-                <p class="lead">
+                </h3>
+                <p>
                     by <%= post.author %> |
                     <time><%= post.publish_date %></time>
                 </p>

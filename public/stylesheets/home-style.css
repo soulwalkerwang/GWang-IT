@@ -1,6 +1,6 @@
 body {
   padding: 50px;
-  font: 16px "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
   line-height: 1.42; }
 
 a {
@@ -8,5 +8,12 @@ a {
 
 img.postimg {
   width: 100%; }
+
+img.logo {
+  padding: 0;
+  margin-right: 10px; }
+
+.about p {
+  font-size: 12px; }
 
 /*# sourceMappingURL=home-style.css.map */

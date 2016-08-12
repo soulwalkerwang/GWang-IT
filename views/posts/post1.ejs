@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<% include ../include/header.ejs %>
+    <% include ../include/header.ejs %>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/agate.min.css">
     <meta name="description" content="<%= meta_desc %>">
     <meta name="keywords" content="<%= meta_keywords %>">
@@ -9,6 +9,15 @@
 
 </head>
 <body>
+<div id="fb-root"></div>
+<script>(function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v2.7";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 <% include ../include/topNav.ejs %>
 
 <!-- Page Content -->
@@ -35,15 +44,25 @@
             <p><span class="glyphicon glyphicon-time"></span> Posted on <%= publish_date %></p>
 
             <hr>
-            <%- body%>
+            <%- body %>
             <hr>
             <div id="disqus_thread"></div>
 
         </div>
         <!-- Blog Sidebar Widgets Column -->
         <div class="col-md-4">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
 
-
+            <div class="fb-page" data-href="https://www.facebook.com/gwangitblog/" data-tabs="&#x65f6;&#x95f4;&#x7ebf;"
+                 data-small-header="false" data-adapt-container-width="true" data-hide-cover="false"
+                 data-show-facepile="true">
+                <blockquote cite="https://www.facebook.com/gwangitblog/" class="fb-xfbml-parse-ignore"><a
+                            href="https://www.facebook.com/gwangitblog/">gwangit.com</a></blockquote>
+            </div>
         </div>
 
     </div>
