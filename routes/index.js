@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var conn = require('../dao/connection');
 var fs = require('fs');
-var contents = fs.readFileSync('../sitemap.xml', 'utf8');
+var contents = fs.readFileSync(__dirname +'/../sitemap.xml', 'utf8');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   conn.getAllPosts(req,res, next);
