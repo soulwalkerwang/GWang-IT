@@ -18,7 +18,7 @@
             <!-- Blog Post -->
 
             <!-- Title -->
-            <h1>JVM Architecture 01 - Java Memory Model</h1>
+            <h1>Hibernate : Hibernate5 Hello World Example Code Refactoring</h1>
 
             <!-- Author -->
             <p class="lead">
@@ -31,42 +31,377 @@
             <p><span class="glyphicon glyphicon-time"></span> Posted on 08/11/2016</p>
 
             <hr>
-            <p>Sometimes, when we develop program that needs high demand of thread
-                synchronization and thread security, we usually neglect one thing - Java Memory Model.</p>
-            <h3>Principle of memory model</h3>
-            <ol>
-                <li>Atomicity</li>
-                <li>Visibility</li>
-                <li>Ordering</li>
-            </ol>
-            <p>These three principle is very important if you want to go deeply in java concurrency, but here
-                we mainly talk about java memory model, so I'm not going to write the details and concept of
-                them. If you are interested, It's very easily to find in google. </p>
+            <p>In this article, we gonna do code refactoring on previous <a target="_blank" href="4">
+                    hibernate5 hello world example</a> to make it more extensible and maintainable.</p>
+            <p>In previous post we created "hibernate.cfg.xml" and model class, then in order to do the test we
+                wrote a test function in the end.</p>
+            <p>First of all, keep the configuration file and model class, what we need to do is build a data access object(DAO)
+            layer to encapsulate the data access part.</p>
+            <h3>1.DAO Layer</h3>
+            <p>The responsibility of DAO layer is to mapping the application calls to the persistence layer,
+            it should provide some specific data operations such as save, delete, update and get. All application
+            need to do is get a instance of dao and call corresponding function to hit the database.</p>
+            <h4>DAO layer structure:</h4>
+            <img alt="dao layer structure" title="dao layer structure" src="/images/5-daolayer.PNG">
             <br>
-            <h3>What does JMM (Java Memory Model) looks like</h3>
-            <p>Java Memory model describes relationship of each variable in our program, as well as the
-                details of store variable into memory or take out variable from memory. The variable mentioned
-                here is different from the variable we used in JAVA programming, it includes instance fields,
-                static fields and arrays, exclusive of local variable and method arguments, cause local
-                variable and method arguments are private in each thread, will not be shared.</p>
+            <br>
+            <pre><span>InterfaceCommon.java</span>
+                <code class="java">
+import java.io.Serializable;
+import java.util.List;
 
 
-            <p>All thread shared variable will stored in main memory. Each thread has a private local/working
-                memory that mainly used to save the copy of variable stored in main memory. All operation act
-                on variable (read and write) must processes in local/working memory, it is not allowed to
-                directly operate variable in main memory. Each thread not able to access other thread
-                local/working memory, all variable transmission operation must be handled in main memory.</p>
+public interface InterfaceCommon&lt;T extends Serializable&gt; {
+    T findOne(final long id);
+    List&lt;T&gt; findAll();
+    void create(final T entity);
+    void update(final T entity);
+    void delete(final T entity);
+}
 
-            <img class="postimg" src="/images/JVM Architecture 01.png">
+                </code>
+            </pre>
+            <h4>Explanation:</h4>
+            <p>This is a high level data access operation definition.</p>
+            <br>
+            <pre><span>AbstractDao.java</span>
+                <code class="java">
+import com.gwangit.common.InterfaceCommon;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-            <p>The main memory and working memory written here is different form java heap, stack and method
-                area we used in Java memory region. They are stand in different classified memory level. I'll
-                explain that in later post.</p>
+import java.io.Serializable;
+import java.util.List;
+
+public abstract class AbstractDao&lt;T extends Serializable&gt; implements InterfaceCommon&lt;T&gt; {
+    private Class&lt;T&gt; clazz;
+    private static SessionFactory sessionFactory;
+
+    static {
+        final StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+                .configure(&quot;hibernate.cfg.xml&quot;).build();
+        sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+    }
+
+    protected final void setClazz(final Class&lt;T&gt; clazzToSet) {
+        clazz = clazzToSet;
+    }
+    public final T findOne(final long id) {
+        return getCurrentSession().get(clazz, id);
+    }
+    public final List&lt;T&gt; findAll() {
+        return getCurrentSession().createQuery(&quot;from &quot; + clazz.getName()).list();
+    }
+    public final void create(final T entity) {
+        getCurrentSession().saveOrUpdate(entity);
+    }
+    public final void update(final T entity) {
+        getCurrentSession().update(entity);
+    }
+    public final void delete(final T entity) {
+        getCurrentSession().delete(entity);
+    }
+    public final Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+}
+                </code>
+            </pre>
+            <h4>Explanation:</h4>
+            <p>What we do here is implements the common interface and give exactly implementation of each operation.
+            We also create session factory here in order to get current session to do corresponding action.
+            The session factory should set as final static and initialize firstly, because we only need one
+            session factory to do our job, so it could be set to singleton.</p>
+            <p>
+                Why we need a implemented abstract class here? For example, we have a user model need to be handled,
+                we build a user dao to extends this class and we will have all CRUD methods. Someday we maybe
+                have other database model, all we need to do is build another otherModelDao to extends this class.
+                That is what we mentioned earlier - extensible and maintainable.
+            </p>
+            <br>
+            <pre><span>UserDaoInter.java</span>
+                <code class="java">
+import com.gwangit.common.InterfaceCommon;
+import com.gwangit.model.User;
+import java.util.List;
+
+public interface UserDaoInter extends InterfaceCommon&lt;User&gt; {
+    List&lt;User&gt; findUserByName(String name);
+}
+                </code>
+            </pre>
+            <h4>Explanation:</h4>
+            <p>
+                Oh, why another interface show up? Cause some models might need their own operations. User model
+                has name column so we maybe need findUserByName function, but other models are not, so we can't
+                put this method definition in common interface.
+            </p>
+            <br>
+            <pre><span>UserDaoImpl.java</span>
+                <code class="java">
+import com.gwangit.dao.AbstractDao;
+import com.gwangit.dao.inter.UserDaoInter;
+import com.gwangit.model.User;
+import java.util.List;
+
+public class UserDaoImpl extends AbstractDao&lt;User&gt; implements UserDaoInter{
+    public UserDaoImpl() {
+        super();
+        setClazz(User.class);
+    }
+    public List&lt;User&gt; findUserByName(String name) {
+        return getCurrentSession().createQuery(&quot;from User where name = &quot; + name).list();
+    }
+}
+                </code>
+            </pre>
+            <h4>Explanation:</h4>
+            <p>This is a concrete model dao implementation. Now we get all 5 common methods and 1 own method.</p>
+            <br>
+            <h3>2.Service Layer</h3>
+            <p>After we build DAO layer we need go to service layer. Service layer responsibility is to handle business
+            logic and decouple the DAO from application presentation layer, we also can manage the transaction in
+            this part.</p>
+            <p>What is business logic? we can simply consider it is do something before do the DAO operation.
+            For example, if we have a person model. before it goes to database we want it age minus 10. This part
+            can be done in service layer.</p>
+            <h4>Service layer structure:</h4>
+            <img alt="service layer structure" title="service layer structure" src="/images/5-servicelayer.PNG">
+            <br>
+            <br>
+            <pre><span>AbstractService.java</span>
+                <code class="java">
+import com.gwangit.common.InterfaceCommon;
+import com.gwangit.dao.AbstractDao;
+import org.hibernate.HibernateException;
+import org.hibernate.Transaction;
+import java.io.Serializable;
+import java.util.List;
 
 
+public abstract class AbstractService&lt;T extends Serializable&gt; implements InterfaceCommon&lt;T&gt; {
+
+    @Override
+    public T findOne(final long id) {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        T user = null;
+        try{
+            tx.begin();
+            user = getDao().findOne(id);
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    @Override
+    public List&lt;T&gt; findAll() {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        List&lt;T&gt; resultList = null;
+        try{
+            tx.begin();
+            resultList = getDao().findAll();
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+    @Override
+    public void create(final T entity) {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        try{
+            tx.begin();
+            getDao().create(entity);
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(final T entity) {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        try{
+            tx.begin();
+            getDao().update(entity);
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void delete(final T entity) {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        try{
+            tx.begin();
+            getDao().delete(entity);
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    protected abstract AbstractDao&lt;T&gt; getDao();
+}
+                </code>
+            </pre>
+            <h4>Explanation:</h4>
+            <p>We mange transaction in service layer, why not in dao layer? Cause in transaction management we
+            maybe have multiple operations need to do, it may comes from different DAO. Try to image, we have
+            a business need update something in "Car" table and then modified something in "Owner" table, this
+            should be treated as one transaction, whichever operation throws exception we need to rollback,
+            so put them in service layer couldn't be better.</p>
+            <p>In hibernate there are two ways to get session object, getCurrentSession() and openSession().</p>
+            <p>openSession()</p>
+            <ul>
+                <li>It is gonna creates a new session for you, doesn't store or pull session from current context.</li>
+                <li>After use it, need to do <b>flush()</b> and <b>close()</b> manually. </li>
+            </ul>
+            <p>getCurrentSession()</p>
+            <ul>
+                <li>This will creates new session if one does not exist or uses an existing one if one already
+                    exists in current context</li>
+                <li>Session will be automatically flushed and closed.</li>
+            </ul>
+            <pre><span>UserServiceInter.java</span>
+                <code class="java">
+import com.gwangit.common.InterfaceCommon;
+import com.gwangit.model.User;
+import java.util.List;
+
+
+public interface UserServiceInter extends InterfaceCommon&lt;User&gt; {
+    List&lt;User&gt; findUserByName(String name);
+}
+                </code>
+            </pre>
+            <pre><span>UserServiceImpl.java</span>
+                <code class="java">
+import com.gwangit.dao.AbstractDao;
+import com.gwangit.dao.impl.UserDaoImpl;
+import com.gwangit.dao.inter.UserDaoInter;
+import com.gwangit.model.User;
+import com.gwangit.service.AbstractService;
+import com.gwangit.service.inter.UserServiceInter;
+import org.hibernate.HibernateException;
+import org.hibernate.Transaction;
+import java.util.List;
+
+
+public class UserServiceImpl extends AbstractService&lt;User&gt; implements UserServiceInter{
+    private UserDaoInter userDao = new UserDaoImpl();
+    protected AbstractDao&lt;User&gt; getDao(){
+        return (AbstractDao&lt;User&gt;)userDao;
+    }
+
+    @Override
+    public List&lt;User&gt; findUserByName(String name) {
+        Transaction tx = getDao().getCurrentSession().getTransaction();
+        List&lt;User&gt; users = null;
+        try{
+            tx.begin();
+            users = userDao.findUserByName(name);
+            tx.commit();
+        }catch (final HibernateException he){
+            if (tx != null)
+                tx.rollback();
+            he.printStackTrace();
+        }catch (final Exception e){
+            e.printStackTrace();
+        }
+        return users;
+    }
+}
+                </code>
+            </pre>
+            <h3>3.Test</h3>
+            <pre><span>AppTest.java</span>
+                <code class="java">
+import com.gwangit.model.User;
+import com.gwangit.service.impl.UserServiceImpl;
+import com.gwangit.service.inter.UserServiceInter;
+import org.junit.Test;
+import java.util.List;
+
+
+public class AppTest {
+    private UserServiceInter userService = new UserServiceImpl();
+
+
+    @Test
+    public void testSaveUser(){
+        User user = new User();
+        user.setName(&quot;gwang&quot;);
+        userService.create(user);
+    }
+
+    @Test
+    public void testFindAllUser(){
+        List&lt;User&gt; list = userService.findAll();
+        for (User user: list) {
+            System.out.println(user.getName());
+        }
+    }
+
+    @Test
+    public void testFindUserById(){
+        User user = userService.findOne(1L);
+        System.out.println(user.getName());
+    }
+
+    @Test
+    public void testUpdateUser(){
+        User user = userService.findOne(1L);
+        user.setName(&quot;Peter&quot;);
+        userService.update(user);
+    }
+
+    @Test
+    public void testDeleteUser(){
+        User user = userService.findOne(1L);
+        userService.delete(user);
+    }
+
+    @Test
+    public void findUserByName(){
+        List&lt;User&gt; users = userService.findUserByName(&quot;gwang&quot;);
+        for (User user : users){
+            System.out.println(user.getId());
+        }
+    }
+}
+                </code>
+            </pre>
+            <p>Now, we can see clear and clean code when we try to do data operation.</p>
+            <h4><span class="glyphicon glyphicon-folder-open"></span> Project repository :  <a target="_blank" href="https://github.com/gwang-it/hibernate-helloworld">click here</a></h4>
             <hr>
-
-
         </div>
         <!-- Blog Sidebar Widgets Column -->
         <div class="col-md-4">

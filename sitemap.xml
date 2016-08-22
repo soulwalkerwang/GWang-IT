@@ -19,4 +19,12 @@
   <loc>https://gwangit.com/posts/3</loc>
   <changefreq>monthly</changefreq>
 </url>
+  <url>
+    <loc>https://gwangit.com/posts/4</loc>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://gwangit.com/posts/5</loc>
+    <changefreq>monthly</changefreq>
+  </url>
 </urlset>
